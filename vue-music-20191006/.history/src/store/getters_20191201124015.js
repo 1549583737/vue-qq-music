@@ -1,0 +1,1 @@
+export default const singer = state => state.singer

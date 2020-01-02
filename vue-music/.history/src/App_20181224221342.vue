@@ -1,0 +1,24 @@
+<template>
+  <div id="app">
+    <!-- <img src="./assets/logo.png"> -->
+    <router-view/>
+  </div>
+</template>
+
+<script>
+import MHeader from 'components/m-header/m-header'
+export default {
+  name: 'App',
+  components: {
+    
+  }
+}
+</script>
+
+<style scoped lang="stylus" rel="stylesheet/stylus">
+@import "~common/stylus/variable.styl"
+
+#app {
+  color $color-theme
+}
+</style>
