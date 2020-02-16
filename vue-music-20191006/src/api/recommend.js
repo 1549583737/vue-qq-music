@@ -2,7 +2,7 @@ import jsonp from '../common/js/jsonp'
 import {commonParams, options} from './config'
 import axios from 'axios'
 
-export function getRecommend () {
+export function getRecommend() {
   const url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
   const data = Object.assign({}, commonParams, {
     platform: 'h5',
@@ -12,7 +12,7 @@ export function getRecommend () {
   return jsonp(url, data, options)
 }
 
-export function getDiscList () {
+export function getDiscList() {
   const url = '/api/getDiscList'
   const data = Object.assign({}, commonParams, {
     platform: 'yqq',
@@ -29,5 +29,37 @@ export function getDiscList () {
     params: data
   }).then((res) => {
     return Promise.resolve(res.data)
+  })
+}
+
+export function getSongList(disstid) {
+  return new Promise((resolve, reject) => {
+    const url = '/api/getSongList'
+    const data = Object.assign({}, commonParams, {
+      uin: 0,
+      format: 'json',
+      // notice: 0,
+      // new_format: 1,
+      pic: 500,
+      disstid,
+      type: 1,
+      json: 1,
+      utf8: 1,
+      onlysong: 0,
+      picmid: 1,
+      nosign: 1,
+      song_begin: 0,
+      platform: 'h5',
+      needNewCode: 0,
+      song_num: 100,
+      _: +new Date()
+    })
+    axios.get(url, {
+      params: data
+    }).then((res) => {
+      // Promise.resolve(res.data)
+      resolve(res.data)
+      // Promise.resolve(res.data)
+    })
   })
 }

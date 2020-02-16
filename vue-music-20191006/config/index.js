@@ -14,8 +14,8 @@ module.exports = {
       '/api/getDiscList': {
         target: 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg',
         bypass: function (req, res, proxyOptions) {
-          req.headers.referer = 'https://c.y.qq.com';
-          req.headers.host = 'c.y.qq.com';
+          req.headers.referer = 'https://c.y.qq.com'
+          req.headers.host = 'c.y.qq.com'
         },
         pathRewrite: {
           '^/api/getDiscList': ''
@@ -29,13 +29,37 @@ module.exports = {
         // target: 'https://c.y.qq.com/v8/fcg-bin/v8.fcg',
         // target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
         bypass: function (req, res, proxyOptions) {
-          req.headers.referer = 'https://c.y.qq.com';
-          req.headers.host = 'c.y.qq.com';
+          req.headers.referer = 'https://c.y.qq.com'
+          req.headers.host = 'c.y.qq.com'
         },
         pathRewrite: {
           '^/api/music': ''
         }
       },
+      '/api/getSongList': {
+        target: 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg',
+        secure: false,
+        changeOrigin: true,
+        bypass: function (req, res, proxyOptions) {
+          req.headers.referer = 'https://txt.mqq.all/'
+          req.headers.host = 'c.y.qq.com'
+        },
+        pathRewrite: {
+          '^/api/getSongList': ''
+        }
+      }
+      // 'api/search_for_qq': {
+      //   target: 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq.cp',
+      //   secure: false,
+      //   changeOrigin: true,
+      //   bypass: function (req, res, proxyOptions) {
+      //     req.headers.referer = 'https://c.y.qq.com/'
+      //     req.headers.host = 'c.y.qq.com'
+      //   },
+      //   pathRewrite: {
+      //     '^/api/search_for_qq': ''
+      //   }
+      // }
       // '/api/getplaysongvkey': {
       //   target: 'https://vkey/cgi-bin/musicu.fcg',
       //   bypass: function (req, res, proxyOptions) {

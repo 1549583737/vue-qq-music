@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recommend">
     <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
         <div class="slider-wrapper" v-if="recommends.length">
@@ -15,7 +15,7 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li v-for="(item, index) in discList" class="item" :key="index">
+            <li @click="selectItem(item)" v-for="(item, index) in discList" class="item" :key="index">
               <div class="icon">
                 <img v-lazy="item.imgurl" alt="" width="60" height="60">
               </div>
@@ -31,24 +31,28 @@
         <Loading></Loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import Loading from 'base/loading/loading'
   import Slider from 'base/slider/slider'
-  import {getRecommend, getDiscList} from 'api/recommend'
+  import {getDiscList, getRecommend} from 'api/recommend'
   import {ERR_OK} from 'api/config'
   import Scroll from 'base/scroll/scroll'
+  import {playlistMixin} from '../../common/js/mixin'
+  import {mapMutations} from 'vuex'
 
   export default {
     name: 'recommend',
+    mixins: [playlistMixin],
     components: {
       Slider,
       Scroll,
       Loading
     },
-    created () {
+    created() {
       // setTimeout(() => {
       //   this._getRecommend()
       // }, 1000)
@@ -58,33 +62,47 @@
       this._getRecommend()
       // this._getDiscList()
     },
-    data () {
+    data() {
       return {
         recommends: [],
         discList: []
       }
     },
     methods: {
-      _getRecommend () {
+      handlePlaylist(playlist) {
+        const bottom = playlist.length > 0 ? '60px' : ''
+        this.$refs.recommend.style.bottom = bottom
+        this.$refs.scroll.refresh()
+      },
+      selectItem(item) {
+        this.$router.push({
+          path: `/recommend/${item.dissid}`
+        })
+        this.setDisc(item)
+      },
+      _getRecommend() {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
             this.recommends = res.data.slider
           }
         })
       },
-      _getDiscList () {
+      _getDiscList() {
         getDiscList().then((res) => {
           if (res.code === ERR_OK) {
             this.discList = res.data.list
           }
         })
       },
-      loadImage () {
+      loadImage() {
         if (!this.checkLoaded) {
           this.$refs.scroll.refresh()
           this.checkLoaded = true
         }
-      }
+      },
+      ...mapMutations({
+        setDisc: 'SET_DISC'
+      })
     }
   }
 </script>

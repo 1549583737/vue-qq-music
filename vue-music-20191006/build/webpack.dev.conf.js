@@ -31,7 +31,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
 
   // these devServer options should be customized in /config/index.js
   devServer: {
-    before (app) {
+    before(app) {
       app.get('/api/getDiscList', (req, res) => {
         const url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
         axios.get(url, {
@@ -46,12 +46,67 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(err)
         })
       })
+      app.get('/api/lyric', (req, res) => {
+        const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          let ret = response.data
+          if (typeof ret === 'string') {
+            let req = /^\w+\(({[^()]+})\)$/
+            let mathes = ret.match(req)
+            if (mathes) {
+              ret = JSON.parse(mathes[1])
+            }
+          }
+          res.json(ret)
+        }).catch((err) => {
+          console.log(err)
+        })
+      })
+
+      app.get('/api/search', function (req, res) {
+        var url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+      // app.get('/api/getSongList', (req, res) => {
+      //   const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+      //   axios.get(url, {
+      //     header: {
+      //       referer: 'https://c.y.qq.com',
+      //       host: 'c.y.qq.com'
+      //     },
+      //     params: req.query
+      //   }).then((response) => {
+      //     let ret = response.data
+      //     debugger
+      //     if (typeof ret === 'string') {
+      //       res.json(response.data)
+      //     }
+      //   }).catch((err) => {
+      //     console.log(err)
+      //   })
+      // })
     },
     clientLogLevel: 'warning',
     historyApiFallback: {
       rewrites: [
         {from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html')},
-      ],
+      ]
     },
     hot: true,
     contentBase: false, // since we use CopyWebpackPlugin.
@@ -66,7 +121,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     proxy: config.dev.proxyTable,
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
-      poll: config.dev.poll,
+      poll: config.dev.poll
     }
   },
   plugins: [

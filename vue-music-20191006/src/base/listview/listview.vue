@@ -110,6 +110,9 @@
         let anchorIndex = parseInt(this.touch.anchorIndex) + delta // 用parseInt 转换成number类型
         this._scrollTo(anchorIndex)
       },
+      refresh() {
+        this.$refs.listview.refresh()
+      },
       scroll(pos) {
         this.scrollY = pos.y
       },

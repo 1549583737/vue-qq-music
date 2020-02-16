@@ -1,11 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import HelloWorld from '@/components/HelloWorld'
 import Recommend from 'components/recommend/recommend'
 import Singer from 'components/singer/singer'
 import Rank from 'components/rank/rank'
 import Search from 'components/search/search'
 import SingerDetail from 'components/singer-detail/singer-detail'
+import Disc from 'components/disc/disc'
+
+const TopList = (resolve) => {
+  import('components/top-list/top-list').then((module) => {
+    resolve(module)
+  })
+}
 
 Vue.use(Router)
 
@@ -22,7 +28,13 @@ export default new Router({
     },
     {
       path: '/recommend',
-      component: Recommend
+      component: Recommend,
+      children: [
+        {
+          path: ':id',
+          component: Disc
+        }
+      ]
     },
     {
       path: '/singer',
@@ -36,11 +48,22 @@ export default new Router({
     },
     {
       path: '/rank',
-      component: Rank
+      component: Rank,
+      children: [
+        {
+          path: ':id',
+          component: TopList
+        }
+      ]
     },
     {
       path: '/search',
-      component: Search
+      component: Search,
+      children: [{
+        name: 'SingerDetail',
+        path: ':id',
+        component: SingerDetail
+      }]
     }
   ]
 })
