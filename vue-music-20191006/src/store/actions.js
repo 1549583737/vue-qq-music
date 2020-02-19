@@ -1,7 +1,7 @@
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {shuffle} from '../common/js/util'
-import {saveSearch} from '../common/js/cache'
+import {clearSearch, deleteSearch, saveSearch} from '../common/js/cache'
 
 function findIndex(list, song) {
   return list.findIndex((item) => {
@@ -58,13 +58,12 @@ export const insertSong = function ({commit, state}, song) {
   }
   let currentSIndex = findIndex(sequenceList, currentSong) + 1
   let fsIndex = findIndex(sequenceList, song)
-
-  playlist.splice(currentSIndex, 0, song)
+  sequenceList.splice(currentSIndex, 0, song)
   if (fsIndex > -1) {
     if (currentSIndex > fsIndex) {
-      playlist.splice(fsIndex, 1)
+      sequenceList.splice(fsIndex, 1)
     } else {
-      playlist.splice(fpIndex + 1, 1)
+      sequenceList.splice(fpIndex + 1, 1)
     }
   }
   commit(types.SET_PLAYLIST, playlist)
@@ -76,4 +75,32 @@ export const insertSong = function ({commit, state}, song) {
 
 export const saveSearchHistory = function ({commit, state}, query) {
   commit(types.SET_SEARCH_HISTORY, saveSearch(query))
+}
+export const deleteSearchHistory = function ({commit}, query) {
+  commit(types.SET_SEARCH_HISTORY, deleteSearch(query))
+}
+export const clearSearchHistory = function ({commit}) {
+  commit(types.SET_SEARCH_HISTORY, clearSearch())
+}
+
+export const deleteSong = function ({commit, state}, song) {
+  let playlist = state.playlist.slice()
+  let sequenceList = state.sequenceList.slice()
+  let currentIndex = state.currentIndex
+  let pIndex = findIndex(playlist, song)
+  playlist.splice(pIndex, 1)
+  let sIndex = findIndex(sequenceList, song)
+  sequenceList.splice(sIndex, 1)
+
+  if (currentIndex > pIndex || currentIndex === playlist.length) {
+    currentIndex--
+  }
+  commit(types.SET_PLAYLIST, playlist)
+  commit(types.SET_SEQUENCE_LIST, sequenceList)
+  commit(types.SET_CURRENT_INDEX, currentIndex)
+  if (!playlist.length) {
+    commit(types.SET_PLAYING_STATE, false)
+  } else {
+    commit(types.SET_PLAYING_STATE, true)
+  }
 }

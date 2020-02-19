@@ -96,12 +96,12 @@
           </progress-circle>
         </div>
 
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-
+    <play-list ref="playlist"></play-list>
     <audio ref="audio"
            :src="currentSong.url"
            @canplay="ready"
@@ -122,6 +122,7 @@
   import {shuffle} from 'common/js/util'
   import Scroll from 'base/scroll/scroll'
   import Lyric from 'lyric-parser'
+  import PlayList from 'components/playlist/playlist'
 
   const transform = prefixStyle('transform')
   const transitionDuration = prefixStyle('transitionDuration')
@@ -160,7 +161,8 @@
     components: {
       ProgressBar,
       ProgressCircle,
-      Scroll
+      Scroll,
+      PlayList
     },
     data() {
       return {
@@ -348,6 +350,10 @@
           this.$refs.lyricList.scrollTo(0, 0, 1000)
         }
         this.playingLyric = txt
+      },
+      showPlaylist() {
+        this.$refs.playlist.show()
+        // this.$refs.playlist.show()
       },
       middleTouchStart(e) {
         this.touch.initiated = true

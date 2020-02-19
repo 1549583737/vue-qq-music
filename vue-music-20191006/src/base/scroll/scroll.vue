@@ -74,7 +74,6 @@
             this.$emit('beforeScroll')
           })
         }
-
       },
       enable() {
         this.scroll && this.scroll.enable()

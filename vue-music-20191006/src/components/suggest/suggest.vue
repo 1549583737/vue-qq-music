@@ -8,7 +8,7 @@
           ref="suggest"
   >
     <ul class="suggest-list">
-      <li @click="selectItem" class="suggest-item" v-for="(item, index) in result" :key="index">
+      <li @click="selectItem(item)" class="suggest-item" v-for="(item, index) in result" :key="index">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -27,6 +27,7 @@
 <script type="text/ecmascript-6">
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
+  import {getMusic} from 'api/singer'
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
@@ -74,8 +75,12 @@
         this.$refs.suggest.scrollTo(0, 0)
         search(this.query, this.page, this.showSinger, perpage).then(res => {
           if (res.code === ERR_OK) {
-            this.result = this._genResult(res.data)
-            this._checkMore(res.data)
+            Promise.resolve(this._genResult(res.data)).then(res1 => {
+              console.log(res1)
+              this.result = this.result.concat(res1)
+              console.log('----: ', this.result)
+              this._checkMore(res.data)
+            })
           }
         })
       },
@@ -92,6 +97,9 @@
         })
       },
       getIconCls(item) {
+        if (!item) {
+          return
+        }
         if (item.type === TYPE_SINGER) {
           return 'icon-mine'
         } else {
@@ -99,6 +107,9 @@
         }
       },
       getDisplayName(item) {
+        if (!item) {
+          return
+        }
         if (item.type === TYPE_SINGER) {
           return item.singername
         } else {
@@ -106,6 +117,9 @@
         }
       },
       selectItem(item) {
+        if (!item) {
+          return
+        }
         if (item.type === TYPE_SINGER) {
           const singer = new Singer({
             id: item.singermid,
@@ -119,6 +133,9 @@
           this.insertSong(item)
         }
         this.$emit('select')
+      },
+      refresh() {
+        this.$refs.suggest.refresh()
       },
       listScroll() {
         this.$emit('listScroll')
@@ -135,18 +152,42 @@
           ret.push({...data.zhida, ...{type: TYPE_SINGER}})
         }
         if (data.song) {
-          ret = ret.concat(this._normalizeSongs(data.song.list))
+          // console.log('222', ret.concat(this._normalizeSongs(data.song.list)))
+          (this._normalizeSongs(data.song.list)).then(res => {
+            ret = ret.concat(res)
+            return Promise.resolve(res)
+          })
         }
-        return ret
       },
       _normalizeSongs(list) {
+        if (!list) {
+          return
+        }
+
+        function pushData(musicData) {
+          return new Promise((resolve) => {
+            getMusic(musicData.songmid).then(res => {
+              if (res) {
+                const startIndex = res.indexOf('(')
+                const stopIndex = res.indexOf(')')
+                const response = JSON.parse(res.slice(startIndex + 1, stopIndex))
+                const vkey = response.data.items[0].vkey
+                resolve(createSong(musicData, vkey))
+              }
+            })
+          })
+        }
+
         let ret = []
-        list.forEach((musicData) => {
-          if (musicData.songid && musicData.albumid) {
-            ret.push(createSong(musicData))
+        list.forEach((musicData, index) => {
+          if (musicData.songid && musicData.albummid) {
+            ret.push(pushData(musicData))
           }
         })
-        return ret
+
+        return Promise.all(ret).then(res => {
+          return res
+        })
       },
       ...mapMutations({
         setSinger: 'SET_SINGER'
